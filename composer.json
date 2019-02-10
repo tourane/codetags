@@ -1,0 +1,26 @@
+{
+  "name": "xoay/codetags",
+  "description": "A simple PHP module for feature toggle.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "feature-flag",
+    "feature-toggle"
+  ],
+  "autoload": {
+    "classmap": [
+      "src/"
+    ]
+  },
+  "require": {
+    "php": "^5.3.2 || ^7.0",
+    "composer/semver": "^1.4.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^4.8",
+    "phpunit/phpunit-mock-objects": "2.3.0 || ^3.0"
+  },
+  "scripts": {
+    "test": "phpunit"
+  }
+}
