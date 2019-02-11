@@ -82,6 +82,20 @@ class Codetags {
     return $this;
   }
 
+  public function isActive() {
+    $arguments = array();
+    $argTotal = func_num_args();
+    for($i = 0; $i < $argTotal; $i++) {
+      array_push($arguments, func_get_arg($i));
+    }
+    foreach(["positiveTags", "negativeTags"] as $tagType) {
+      if (!array_key_exists($tagType, $this->store)) {
+        $this->store[$tagType] = $this->getEnv($this->getLabel($tagType));
+      }
+    }
+    return $this->isArgumentsSatisfied($arguments);
+  }
+
   public function getDeclaredTags() {
     if (is_array($this->store["declaredTags"])) {
       return $this->store["declaredTags"];
@@ -108,6 +122,110 @@ class Codetags {
       unset($this->presets[$fieldName]);
     }
     return $this;
+  }
+
+  private function getLabel($label) {
+    $prefix = "_";
+    if (array_key_exists("namespace", $this->presets) && is_string($this->presets["namespace"])) {
+      $prefix = $this->presets["namespace"] . $prefix;
+    } else {
+      $prefix = DEFAULT_NAMESPACE . $prefix;
+    }
+    switch ($label) {
+      case "positiveTags":
+        return $prefix . (array_key_exists("positiveTagsLabel", $this->presets) ? $this->presets["positiveTagsLabel"] : "POSITIVE_TAGS");
+        break;
+      case "negativeTags":
+        return $prefix . (array_key_exists("negativeTagsLabel", $this->presets) ? $this->presets["negativeTagsLabel"] : "NEGATIVE_TAGS");
+        break;
+    }
+    return $prefix . (array_key_exists($label, $this->presets) ? $this->presets[$label] : Nodash::labelify($label));
+  }
+
+  private function getEnv($label, $default_value = Null) {
+    if (!is_string($label)) return Null;
+    if (array_key_exists($label, $this->store["env"])) return $this->store["env"][$label];
+    if (is_string($default_value)) {
+      $this->store["env"][$label] = $default_value;
+    }
+    $env_value = getenv($label);
+    if (is_string($env_value)) {
+      $this->store["env"][$label] = $env_value;
+    }
+    $this->store["env"][$label] = Nodash::stringToArray($this->store["env"][$label]);
+    return $this->store["env"][$label];
+  }
+
+  private function isArgumentsSatisfied($arguments) {
+    foreach($arguments as $arg) {
+      if ($this->evaluateExpression($arg)) return True;
+    }
+    return False;
+  }
+
+  private function isAllOfLabelsSatisfied($labels) {
+    if (is_array($labels)) {
+      foreach($labels as $label) {
+        if (!$this->evaluateExpression($label)) return False;
+      }
+      return True;
+    }
+    return $this->evaluateExpression($labels);
+  }
+
+  private function isAnyOfLabelsSatisfied($labels) {
+    if (is_array($labels)) {
+      foreach($labels as $label) {
+        if ($this->evaluateExpression($label)) return True;
+      }
+      return False;
+    }
+    return $this->evaluateExpression($labels);
+  }
+
+  private function isNotOfLabelsSatisfied($labels) {
+    return !($this->evaluateExpression($labels));
+  }
+
+  private function evaluateExpression($exp) {
+    if (is_array($exp)) {
+      if (Nodash::is_associate_array($exp)) {
+        foreach($exp as $op => $subexp) {
+          switch($op) {
+            case '$all':
+              if ($this->isAllOfLabelsSatisfied($subexp) === False) return False;
+              break;
+            case '$any':
+              if ($this->isAnyOfLabelsSatisfied($subexp) === False) return False;
+              break;
+            case '$not':
+              if ($this->isNotOfLabelsSatisfied($subexp) === False) return False;
+              break;
+            default:
+              return False;
+              break;
+          }
+        }
+        return True;
+      } else {
+        return $this->isAllOfLabelsSatisfied($exp);
+      }
+    }
+    return $this->checkLabelActivated($exp);
+  }
+
+  private function checkLabelActivated($label) {
+    if (array_key_exists($label, $this->store["cachedTags"])) {
+      return $this->store["cachedTags"][$label];
+    }
+    $this->store["cachedTags"][$label] = $this->forceCheckLabelActivated($label);
+    return $this->store["cachedTags"][$label];
+  }
+
+  private function forceCheckLabelActivated($label) {
+    if (in_array($label, $this->store["negativeTags"])) return False;
+    if (in_array($label, $this->store["positiveTags"])) return True;
+    return in_array($label, $this->store["declaredTags"]);
   }
 
   public static function newInstance($name, $opts = array()) {

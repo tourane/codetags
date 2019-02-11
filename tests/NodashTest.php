@@ -10,6 +10,10 @@ class NodashTest extends TestCase {
     $this->assertEquals("UNDERSCORE_WITH_123", Nodash::labelify("Underscore_with 123"));
     $this->assertEquals("USER_EXAMPLE_COM", Nodash::labelify("user@example.com"));
   }
+
+  public function test_is_sequence_array() {
+    $this->assertTrue(Nodash::is_sequence_array(array(0, "Hello World", True, array(1, 2, 3))));
+  }
 }
 
 ?>

@@ -9,7 +9,16 @@ class Nodash {
   }
 
   public static function is_associate_array($array) {
-    return is_array($array) && count(array_filter(array_keys($array), 'is_string')) > 0;
+    return !self::is_sequence_array($array);
+  }
+
+  public static function is_sequence_array($array) {
+    if (!is_array($array)) return False;
+    foreach(array_keys($array) as $index) {
+      if (is_string($index)) return False;
+      break;
+    }
+    return True;
   }
 
   public static function isVersionValid($version) {
@@ -22,6 +31,21 @@ class Nodash {
 
   public static function isVersionLT($version1, $version2) {
     return Comparator::lessThan($version1, $version2);
+  }
+
+  public static function stringToArray($str) {
+    if (is_string($str)) {
+      $arr = preg_split("/[,]/", $str);
+      // $arr = explode(",", $str);
+      $arr = array_map(function ($item) {
+        return trim($item);
+      }, $arr);
+      $arr = array_filter($arr, function($item) {
+        return strlen($item) > 0;
+      });
+      return $arr;
+    }
+    return array();
   }
 }
 
