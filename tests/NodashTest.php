@@ -1,4 +1,4 @@
-<?php namespace Xoay\Codetags;
+<?php namespace Tourane\Codetags;
 
 use PHPUnit\Framework\TestCase;
 

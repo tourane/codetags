@@ -1,4 +1,4 @@
-<?php namespace Xoay\Codetags;
+<?php namespace Tourane\Codetags;
 
 const DEFAULT_NAMESPACE = "CODETAGS";
 

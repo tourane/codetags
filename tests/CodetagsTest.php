@@ -1,4 +1,4 @@
-<?php namespace Xoay\Codetags;
+<?php namespace Tourane\Codetags;
 
 use PHPUnit\Framework\TestCase;
 
@@ -34,7 +34,7 @@ class CodetagsTest extends TestCase {
   }
 
   public function testCreateNewInstanceSuccessfully() {
-    $this->assertInstanceOf(Codetags::class, Codetags::newInstance("Xoay"));
+    $this->assertInstanceOf(Codetags::class, Codetags::newInstance("Tourane"));
   }
 
   public function testGetInstanceSuccessfully() {
