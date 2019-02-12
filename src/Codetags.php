@@ -23,8 +23,8 @@ class Codetags {
    *
    * @param array $opts {
    *  @var string $namespace  a customized namespace for this instance.
-   *  @var string $includedTagsLabel  a customized label for positive tags environment variable name (default: POSITIVE_TAGS).
-   *  @var string $excludedTagsLabel  a customized label for negative tags environment variable name (default: NEGATIVE_TAGS).
+   *  @var string $includedTagsLabel  a customized label for positive tags environment variable name (default: INCLUDED_TAGS).
+   *  @var string $excludedTagsLabel  a customized label for negative tags environment variable name (default: EXCLUDED_TAGS).
    *  @var string $version  the current package version.
    * }
    *

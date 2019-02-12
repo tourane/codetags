@@ -51,8 +51,8 @@ Find this line and uncomment it (remove the ‘;’):
 Add environment variables declaration like this:
 
 ```ini
-env[CODETAGS_POSITIVE_TAGS] = 'mongodb,foo,bar'
-env[CODETAGS_NEGATIVE_TAGS] = 'couchdb'
+env[CODETAGS_INCLUDED_TAGS] = 'mongodb,foo,bar'
+env[CODETAGS_EXCLUDED_TAGS] = 'couchdb'
 ```
 
 Restart the `php-fpm` process with:
