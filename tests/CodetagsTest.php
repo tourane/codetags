@@ -123,6 +123,13 @@ class CodetagsTest extends TestCase {
           "maxBound" => "0.2.7"
         )
       ),
+      array(
+        "name" => "feature-14",
+        "plan" => array(
+          "enabled" => False,
+          "maxBound" => "0.2.9"
+        )
+      ),
     ));
     $actual = Codetags::instance()->getDeclaredTags();
     $expected = $featureList;
@@ -137,6 +144,8 @@ class CodetagsTest extends TestCase {
       array("0.1.3", ["feature-01","feature-02","feature-11","feature-12"]),
       array("0.2.2", ["feature-01", "feature-02", "feature-11", "feature-12", "feature-13"]),
       array("0.2.8", ["feature-01", "feature-02", "feature-11"]),
+      array("0.2.9", ["feature-01", "feature-02", "feature-11", "feature-14"]),
+      array("0.2.10", ["feature-01", "feature-02", "feature-11", "feature-14"]),
     );
   }
 

@@ -25,7 +25,7 @@ class Codetags {
         $this->presets[$fieldName] = $opts[$fieldName];
       }
     }
-    return $this;
+    return $this->refreshEnv();
   }
 
   public function register($descriptors = array()) {
@@ -84,14 +84,8 @@ class Codetags {
 
   public function isActive() {
     $arguments = array();
-    $argTotal = func_num_args();
-    for($i = 0; $i < $argTotal; $i++) {
+    for($i = 0; $i < func_num_args(); $i++) {
       array_push($arguments, func_get_arg($i));
-    }
-    foreach(["positiveTags", "negativeTags"] as $tagType) {
-      if (!array_key_exists($tagType, $this->store)) {
-        $this->store[$tagType] = $this->getEnv($this->getLabel($tagType));
-      }
     }
     return $this->isArgumentsSatisfied($arguments);
   }
@@ -104,15 +98,10 @@ class Codetags {
   }
 
   public function clearCache() {
-    foreach(array_keys($this->store["env"]) as $envName) {
-      unset($this->store["env"][$envName]);
-    }
     foreach(array_keys($this->store["cachedTags"]) as $tag) {
       unset($this->store["cachedTags"][$tag]);
     }
-    unset($this->store["positiveTags"]);
-    unset($this->store["negativeTags"]);
-    return $this;
+    return $this->refreshEnv();
   }
 
   public function reset() {
@@ -145,6 +134,7 @@ class Codetags {
   private function getEnv($label, $default_value = Null) {
     if (!is_string($label)) return Null;
     if (array_key_exists($label, $this->store["env"])) return $this->store["env"][$label];
+    $this->store["env"][$label] = Null;
     if (is_string($default_value)) {
       $this->store["env"][$label] = $default_value;
     }
@@ -154,6 +144,16 @@ class Codetags {
     }
     $this->store["env"][$label] = Nodash::stringToArray($this->store["env"][$label]);
     return $this->store["env"][$label];
+  }
+
+  private function refreshEnv() {
+    foreach(array_keys($this->store["env"]) as $envName) {
+      unset($this->store["env"][$envName]);
+    }
+    foreach(["positiveTags", "negativeTags"] as $tagType) {
+      $this->store[$tagType] = $this->getEnv($this->getLabel($tagType));
+    }
+    return $this;
   }
 
   private function isArgumentsSatisfied($arguments) {
