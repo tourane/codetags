@@ -1,4 +1,4 @@
-# Codetags
+# tourane/codetags
 
 ## Installation
 
@@ -36,7 +36,7 @@ if ($codetags->isActive(['foo', 'bar'])) {
 }
 ```
 
-### Set Environment variables
+### Setting environment variables
 
 #### Setting environment variables in php-fpm
 
@@ -60,3 +60,9 @@ Restart the `php-fpm` process with:
 ```bash
 sudo service php7.2-fpm restart
 ```
+
+## License
+
+MIT
+
+See [LICENSE](LICENSE) to see the full text.
