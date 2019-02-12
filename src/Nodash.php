@@ -36,7 +36,6 @@ class Nodash {
   public static function stringToArray($str) {
     if (is_string($str)) {
       $arr = preg_split("/[,]/", $str);
-      // $arr = explode(",", $str);
       $arr = array_map(function ($item) {
         return trim($item);
       }, $arr);

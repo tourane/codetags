@@ -159,8 +159,8 @@ class CodetagsTest extends TestCase {
 
   public function loop_getLabel_by_default() {
     return array(
-      array("positiveTags", "CODETAGS_POSITIVE_TAGS"),
-      array("negativeTags", "CODETAGS_NEGATIVE_TAGS")
+      array("includedTags", "CODETAGS_INCLUDED_TAGS"),
+      array("excludedTags", "CODETAGS_EXCLUDED_TAGS")
     );
   }
 
@@ -179,10 +179,10 @@ class CodetagsTest extends TestCase {
 
   public function loop_getLabel() {
     return array(
-      [ Null, "positiveTags", "INCLUDED_TAGS", "CODETAGS_INCLUDED_TAGS" ],
-      [ Null, "negativeTags", "EXCLUDED_TAGS", "CODETAGS_EXCLUDED_TAGS" ],
-      [ "testing", "positiveTags", "INCLUDED_TAGS", "TESTING_INCLUDED_TAGS" ],
-      [ "TESTING", "negativeTags", "EXCLUDED_TAGS", "TESTING_EXCLUDED_TAGS" ],
+      [ Null, "includedTags", "POSITIVE_TAGS", "CODETAGS_POSITIVE_TAGS" ],
+      [ Null, "excludedTags", "NEGATIVE_TAGS", "CODETAGS_NEGATIVE_TAGS" ],
+      [ "testing", "includedTags", "POSITIVE_TAGS", "TESTING_POSITIVE_TAGS" ],
+      [ "TESTING", "excludedTags", "NEGATIVE_TAGS", "TESTING_NEGATIVE_TAGS" ],
     );
   }
 
@@ -205,8 +205,8 @@ class CodetagsTest extends TestCase {
   }
 
   public function test_isActive() {
-    putenv("CODETAGS_POSITIVE_TAGS=abc, def, xyz, tag-4");
-    putenv("CODETAGS_NEGATIVE_TAGS=disabled, tag-2");
+    putenv("CODETAGS_INCLUDED_TAGS=abc, def, xyz, tag-4");
+    putenv("CODETAGS_EXCLUDED_TAGS=disabled, tag-2");
     Codetags::instance()->register(['tag-1', 'tag-2']);
     // An arguments-list presents the OR conditional operator
     $this->assertTrue(Codetags::instance()->isActive('abc'));

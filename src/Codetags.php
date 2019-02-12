@@ -23,15 +23,15 @@ class Codetags {
    *
    * @param array $opts {
    *  @var string $namespace  a customized namespace for this instance.
-   *  @var string $positiveTagsLabel  a customized label for positive tags environment variable name (default: POSITIVE_TAGS).
-   *  @var string $negativeTagsLabel  a customized label for negative tags environment variable name (default: NEGATIVE_TAGS).
+   *  @var string $includedTagsLabel  a customized label for positive tags environment variable name (default: POSITIVE_TAGS).
+   *  @var string $excludedTagsLabel  a customized label for negative tags environment variable name (default: NEGATIVE_TAGS).
    *  @var string $version  the current package version.
    * }
    *
    * @return Tourane\Codetags\Codetags The instance itself.
    */
   public function initialize($opts = array()) {
-    foreach (array("namespace", "positiveTagsLabel", "negativeTagsLabel") as $fieldName) {
+    foreach (array("namespace", "includedTagsLabel", "excludedTagsLabel") as $fieldName) {
       if (array_key_exists($fieldName, $opts) && is_string($opts[$fieldName])) {
         $this->presets[$fieldName] = Nodash::labelify($opts[$fieldName]);
       }
@@ -110,12 +110,12 @@ class Codetags {
     return $this->copyTags("declaredTags");
   }
 
-  public function getPositiveTags() {
-    return $this->copyTags("positiveTags");
+  public function getIncludedTags() {
+    return $this->copyTags("includedTags");
   }
 
-  public function getNegativeTags() {
-    return $this->copyTags("negativevTags");
+  public function getExcludedTags() {
+    return $this->copyTags("excludedTags");
   }
 
   /**
@@ -161,11 +161,11 @@ class Codetags {
       $prefix = DEFAULT_NAMESPACE . $prefix;
     }
     switch ($label) {
-      case "positiveTags":
-        return $prefix . (array_key_exists("positiveTagsLabel", $this->presets) ? $this->presets["positiveTagsLabel"] : "POSITIVE_TAGS");
+      case "includedTags":
+        return $prefix . (array_key_exists("includedTagsLabel", $this->presets) ? $this->presets["includedTagsLabel"] : "INCLUDED_TAGS");
         break;
-      case "negativeTags":
-        return $prefix . (array_key_exists("negativeTagsLabel", $this->presets) ? $this->presets["negativeTagsLabel"] : "NEGATIVE_TAGS");
+      case "excludedTags":
+        return $prefix . (array_key_exists("excludedTagsLabel", $this->presets) ? $this->presets["excludedTagsLabel"] : "EXCLUDED_TAGS");
         break;
     }
     return $prefix . (array_key_exists($label, $this->presets) ? $this->presets[$label] : Nodash::labelify($label));
@@ -190,7 +190,7 @@ class Codetags {
     foreach(array_keys($this->store["env"]) as $envName) {
       unset($this->store["env"][$envName]);
     }
-    foreach(["positiveTags", "negativeTags"] as $tagType) {
+    foreach(["includedTags", "excludedTags"] as $tagType) {
       $this->store[$tagType] = $this->getEnv($this->getLabel($tagType));
     }
     return $this;
@@ -263,8 +263,8 @@ class Codetags {
   }
 
   private function forceCheckLabelActivated($label) {
-    if (in_array($label, $this->store["negativeTags"])) return False;
-    if (in_array($label, $this->store["positiveTags"])) return True;
+    if (in_array($label, $this->store["excludedTags"])) return False;
+    if (in_array($label, $this->store["includedTags"])) return True;
     return in_array($label, $this->store["declaredTags"]);
   }
 
