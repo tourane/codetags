@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<phpdox xmlns="http://xml.phpdox.net/config">
+    <project name="Codetags" source="./src" workdir="phpdox">
+        <collector publiconly="true">
+            <include mask="*.php" />
+        </collector>
+
+        <generator output="./docs">
+            <build engine="html" enabled="true" output="html">
+                <file extension="html" />
+            </build>
+        </generator>
+    </project>
+</phpdox>

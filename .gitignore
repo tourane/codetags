@@ -9,5 +9,7 @@ Thumbs.db
 /.vagrant
 /build
 /dist
+/docs
+/phpdox
 /vendor
 composer.lock

@@ -2,6 +2,9 @@
 
 const DEFAULT_NAMESPACE = "CODETAGS";
 
+/**
+ * Singleton class that contains feature tags registering and validating methods.
+ */
 class Codetags {
   private static $instances = array();
   private $store = array(
@@ -15,6 +18,18 @@ class Codetags {
     $this->initialize($opts);
   }
 
+  /**
+   * Initializing namespace, labels of environment variable for tags, package version.
+   *
+   * @param array $opts {
+   *  @var string $namespace  a customized namespace for this instance.
+   *  @var string $positiveTagsLabel  a customized label for positive tags environment variable name (default: POSITIVE_TAGS).
+   *  @var string $negativeTagsLabel  a customized label for negative tags environment variable name (default: NEGATIVE_TAGS).
+   *  @var string $version  the current package version.
+   * }
+   *
+   * @return object This instance itself.
+   */
   public function initialize($opts = array()) {
     foreach (array("namespace", "positiveTagsLabel", "negativeTagsLabel") as $fieldName) {
       if (array_key_exists($fieldName, $opts) && is_string($opts[$fieldName])) {
@@ -92,10 +107,15 @@ class Codetags {
   }
 
   public function getDeclaredTags() {
-    if (is_array($this->store["declaredTags"])) {
-      return $this->store["declaredTags"];
-    }
-    return array();
+    return $this->copyTags("declaredTags");
+  }
+
+  public function getPositiveTags() {
+    return $this->copyTags("positiveTags");
+  }
+
+  public function getNegativeTags() {
+    return $this->copyTags("negativevTags");
   }
 
   public function clearCache() {
@@ -112,6 +132,13 @@ class Codetags {
       unset($this->presets[$fieldName]);
     }
     return $this;
+  }
+
+  private function copyTags($tagType) {
+    if (is_array($this->store[$tagType])) {
+      return array_slice($this->store[$tagType], 0);
+    }
+    return array();
   }
 
   private function getLabel($label) {
