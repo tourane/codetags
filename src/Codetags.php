@@ -118,6 +118,12 @@ class Codetags {
     return $this->copyTags("negativevTags");
   }
 
+  /**
+   * Clears the cached values of tags filtering result as well as the cached values 
+   * of environment variables.
+   * 
+   * @return Tourane\Codetags\Codetags The instance itself.
+   */
   public function clearCache() {
     foreach(array_keys($this->store["cachedTags"]) as $tag) {
       unset($this->store["cachedTags"][$tag]);
@@ -125,6 +131,12 @@ class Codetags {
     return $this->refreshEnv();
   }
 
+  /**
+   * invokes the method clearCache() and clears the values of declaredTags collection 
+   * that has been defined by register() method.
+   * 
+   * @return Tourane\Codetags\Codetags The instance itself.
+   */
   public function reset() {
     $this->clearCache();
     array_splice($this->store["declaredTags"], 0);
