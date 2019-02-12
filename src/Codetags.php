@@ -3,7 +3,7 @@
 const DEFAULT_NAMESPACE = "CODETAGS";
 
 class Codetags {
-  private static $instance = array();
+  private static $instances = array();
   private $store = array(
     "env" => array(),
     "declaredTags" => array(),
@@ -11,7 +11,8 @@ class Codetags {
   );
   private $presets = array();
 
-  private function __construct() {
+  private function __construct($opts = array()) {
+    $this->initialize($opts);
   }
 
   public function initialize($opts = array()) {
@@ -233,21 +234,19 @@ class Codetags {
     if (!is_string($name)) {
       throw new \RuntimeException("The name of a codetags instance must be a string");
     }
-    if ($name === DEFAULT_NAMESPACE && array_key_exists($name, self::$instance)) {
+    if ($name === DEFAULT_NAMESPACE && array_key_exists($name, self::$instances)) {
       throw new \RuntimeException(sprintf("%s is default instance name. Please provides another name.", DEFAULT_NAMESPACE));
     }
-    self::$instance[$name] = new Codetags();
-    self::$instance[$name]->initialize($opts);
-    return self::$instance[$name];
+    return self::$instances[$name] = new Codetags($opts);
   }
 
   public static function getInstance($name, $opts = array()) {
     $name = Nodash::labelify($name);
-    if (array_key_exists($name, self::$instance) && is_object(self::$instance[$name])) {
+    if (array_key_exists($name, self::$instances) && is_object(self::$instances[$name])) {
       if (is_array($opts)) {
-        self::$instance[$name]->initialize($opts);
+        self::$instances[$name]->initialize($opts);
       }
-      return self::$instance[$name];
+      return self::$instances[$name];
     } else {
       return self::newInstance($name, $opts);
     }
