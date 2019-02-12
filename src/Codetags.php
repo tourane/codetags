@@ -28,7 +28,7 @@ class Codetags {
    *  @var string $version  the current package version.
    * }
    *
-   * @return object This instance itself.
+   * @return Tourane\Codetags\Codetags The instance itself.
    */
   public function initialize($opts = array()) {
     foreach (array("namespace", "positiveTagsLabel", "negativeTagsLabel") as $fieldName) {
@@ -256,6 +256,16 @@ class Codetags {
     return in_array($label, $this->store["declaredTags"]);
   }
 
+  /**
+   * Creates a new instance in each time it is called and assigns $name to this 
+   * instance. The $name value is associated with the latest instance. If you want 
+   * to retrieve the already created instance, using getInstance() instead.
+   * 
+   * @param string $name A string that is identified the instance.
+   * @param array $opts An associate array that is used to initialize the instance.
+   * 
+   * @return Tourane\Codetags\Codetags The created instance.
+   */
   public static function newInstance($name, $opts = array()) {
     $name = Nodash::labelify($name);
     if (!is_string($name)) {
@@ -267,6 +277,15 @@ class Codetags {
     return self::$instances[$name] = new Codetags($opts);
   }
 
+  /**
+   * Returns the instance associated to $name or creates a new instance when it has not 
+   * existed before. Its arguments are the same as the method newInstance().
+   * 
+   * @param string $name A string that is identified the instance.
+   * @param array $opts An associate array that is used to initialize the instance.
+   * 
+   * @return Tourane\Codetags\Codetags The retrieved instance.
+   */
   public static function getInstance($name, $opts = array()) {
     $name = Nodash::labelify($name);
     if (array_key_exists($name, self::$instances) && is_object(self::$instances[$name])) {
@@ -279,6 +298,11 @@ class Codetags {
     }
   }
 
+  /**
+   * Provides the default instance.
+   * 
+   * @return Tourane\Codetags\Codetags The default instance.
+   */
   public static function instance() {
     return self::getInstance(DEFAULT_NAMESPACE);
   }
