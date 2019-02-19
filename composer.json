@@ -1,7 +1,7 @@
 {
   "name": "tourane/codetags",
   "description": "A simple PHP module for feature toggle.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "library",
   "license": "MIT",
   "keywords": [
