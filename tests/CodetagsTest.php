@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class CodetagsTest extends TestCase {
+class TagManagerTest extends TestCase {
 
   /**
    * Call protected/private method of a class.
@@ -25,7 +25,7 @@ class CodetagsTest extends TestCase {
   }
 
   protected function setUp() {
-    Codetags::instance()->reset();
+    TagManager::instance()->reset();
   }
 
   protected function tearDown() {
@@ -40,7 +40,7 @@ class CodetagsTest extends TestCase {
     // for PHPUnit < 5.2
     $this->setExpectedException(\RuntimeException::class,
         "The name of a codetags instance must be a string");
-    Codetags::newInstance(1024);
+    TagManager::newInstance(1024);
   }
 
   /**
@@ -49,7 +49,7 @@ class CodetagsTest extends TestCase {
   public function test_illegal_instance_name($instanceName) {
     $this->setExpectedException(\RuntimeException::class,
         "CODETAGS is default instance name. Please provides another name.");
-    Codetags::newInstance($instanceName);
+    TagManager::newInstance($instanceName);
   }
 
   public function loop_illegal_instance_name() {
@@ -61,32 +61,32 @@ class CodetagsTest extends TestCase {
   }
 
   public function testCreateNewInstanceSuccessfully() {
-    $this->assertInstanceOf(Codetags::class, Codetags::newInstance("Tourane", array(
+    $this->assertInstanceOf(TagManager::class, TagManager::newInstance("Tourane", array(
       "namespace" => "Xoay",
       "version" => "0.1.2"
     )));
   }
 
   public function testGetInstanceSuccessfully() {
-    $mission1 = Codetags::getInstance("mission");
-    $mission2 = Codetags::getInstance("mission");
-    $this->assertInstanceOf(Codetags::class, $mission1);
-    $this->assertInstanceOf(Codetags::class, $mission2);
+    $mission1 = TagManager::getInstance("mission");
+    $mission2 = TagManager::getInstance("mission");
+    $this->assertInstanceOf(TagManager::class, $mission1);
+    $this->assertInstanceOf(TagManager::class, $mission2);
     $this->assertEquals($mission1, $mission2);
   }
 
   public function test_register_return_itself() {
-    $this->assertEquals(Codetags::instance(), Codetags::instance()->register());
+    $this->assertEquals(TagManager::instance(), TagManager::instance()->register());
   }
 
   /**
    * @dataProvider loop_register_add_descriptors
    */
   public function test_register_add_descriptors($version, $featureList) {
-    Codetags::instance()->initialize(array(
+    TagManager::instance()->initialize(array(
       "version" => $version
     ));
-    Codetags::instance()->register(array(
+    TagManager::instance()->register(array(
       "feature-01",
       array(
         "name" => "feature-02"
@@ -131,7 +131,7 @@ class CodetagsTest extends TestCase {
         )
       ),
     ));
-    $actual = Codetags::instance()->getDeclaredTags();
+    $actual = TagManager::instance()->getDeclaredTags();
     $expected = $featureList;
     False && print(json_encode($actual, JSON_PRETTY_PRINT));
     $this->assertEmpty(array_diff($expected, $actual));
@@ -153,14 +153,14 @@ class CodetagsTest extends TestCase {
    * @dataProvider loop_getLabel_by_default
    */
   public function test_getLabel_by_default($label_type, $expected) {
-    $output = $this->invokeMethod(Codetags::instance(), 'getLabel', array($label_type));
+    $output = $this->invokeMethod(TagManager::instance(), 'getLabel', array($label_type));
     $this->assertEquals($expected, $output);
   }
 
   public function loop_getLabel_by_default() {
     return array(
-      array("includedTags", "CODETAGS_INCLUDED_TAGS"),
-      array("excludedTags", "CODETAGS_EXCLUDED_TAGS")
+      array("INCLUDED_TAGS", "CODETAGS_INCLUDED_TAGS"),
+      array("EXCLUDED_TAGS", "CODETAGS_EXCLUDED_TAGS")
     );
   }
 
@@ -168,21 +168,21 @@ class CodetagsTest extends TestCase {
    * @dataProvider loop_getLabel
    */
   public function test_getLabel($namespace, $label_type, $label, $expected) {
-    $init_params = array($label_type . "Label" => $label);
+    $init_params = array($label_type => $label);
     if (is_string($namespace)) {
       $init_params["namespace"] = $namespace;
     }
-    Codetags::instance()->initialize($init_params);
-    $output = $this->invokeMethod(Codetags::instance(), 'getLabel', array($label_type));
+    TagManager::instance()->initialize($init_params);
+    $output = $this->invokeMethod(TagManager::instance(), 'getLabel', array($label_type));
     $this->assertEquals($expected, $output);
   }
 
   public function loop_getLabel() {
     return array(
-      [ Null, "includedTags", "POSITIVE_TAGS", "CODETAGS_POSITIVE_TAGS" ],
-      [ Null, "excludedTags", "NEGATIVE_TAGS", "CODETAGS_NEGATIVE_TAGS" ],
-      [ "testing", "includedTags", "POSITIVE_TAGS", "TESTING_POSITIVE_TAGS" ],
-      [ "TESTING", "excludedTags", "NEGATIVE_TAGS", "TESTING_NEGATIVE_TAGS" ],
+      [ Null, "INCLUDED_TAGS", "POSITIVE_TAGS", "CODETAGS_POSITIVE_TAGS" ],
+      [ Null, "EXCLUDED_TAGS", "NEGATIVE_TAGS", "CODETAGS_NEGATIVE_TAGS" ],
+      [ "testing", "INCLUDED_TAGS", "POSITIVE_TAGS", "TESTING_POSITIVE_TAGS" ],
+      [ "TESTING", "EXCLUDED_TAGS", "NEGATIVE_TAGS", "TESTING_NEGATIVE_TAGS" ],
     );
   }
 
@@ -191,7 +191,7 @@ class CodetagsTest extends TestCase {
    */
   public function test_getEnv($putenv_str, $label, $default_value, $expected) {
     putenv($putenv_str);
-    $output = $this->invokeMethod(Codetags::instance(), 'getEnv', array($label, $default_value));
+    $output = $this->invokeMethod(TagManager::instance(), 'getEnv', array($label, $default_value));
     // $this->printJson($output);
     $this->assertEquals($expected, $output);
   }
@@ -207,38 +207,38 @@ class CodetagsTest extends TestCase {
   public function test_isActive() {
     putenv("CODETAGS_INCLUDED_TAGS=abc, def, xyz, tag-4");
     putenv("CODETAGS_EXCLUDED_TAGS=disabled, tag-2");
-    Codetags::instance()->register(['tag-1', 'tag-2']);
+    TagManager::instance()->register(['tag-1', 'tag-2']);
     // An arguments-list presents the OR conditional operator
-    $this->assertTrue(Codetags::instance()->isActive('abc'));
-    $this->assertTrue(Codetags::instance()->isActive('abc', 'xyz'));
-    $this->assertTrue(Codetags::instance()->isActive('abc', 'disabled'));
-    $this->assertTrue(Codetags::instance()->isActive('disabled', 'abc'));
-    $this->assertTrue(Codetags::instance()->isActive('abc', 'nil'));
-    $this->assertTrue(Codetags::instance()->isActive('undefined', 'abc', 'nil'));
-    $this->assertFalse(Codetags::instance()->isActive());
-    $this->assertFalse(Codetags::instance()->isActive(null));
-    $this->assertFalse(Codetags::instance()->isActive('disabled'));
-    $this->assertFalse(Codetags::instance()->isActive('nil'));
-    $this->assertFalse(Codetags::instance()->isActive('nil', 'disabled'));
-    $this->assertFalse(Codetags::instance()->isActive('nil', 'disabled', 'abc.xyz'));
+    $this->assertTrue(TagManager::instance()->isActive('abc'));
+    $this->assertTrue(TagManager::instance()->isActive('abc', 'xyz'));
+    $this->assertTrue(TagManager::instance()->isActive('abc', 'disabled'));
+    $this->assertTrue(TagManager::instance()->isActive('disabled', 'abc'));
+    $this->assertTrue(TagManager::instance()->isActive('abc', 'nil'));
+    $this->assertTrue(TagManager::instance()->isActive('undefined', 'abc', 'nil'));
+    $this->assertFalse(TagManager::instance()->isActive());
+    $this->assertFalse(TagManager::instance()->isActive(null));
+    $this->assertFalse(TagManager::instance()->isActive('disabled'));
+    $this->assertFalse(TagManager::instance()->isActive('nil'));
+    $this->assertFalse(TagManager::instance()->isActive('nil', 'disabled'));
+    $this->assertFalse(TagManager::instance()->isActive('nil', 'disabled', 'abc.xyz'));
     // An array argument presents the AND conditional operator
-    $this->assertTrue(Codetags::instance()->isActive(['abc', 'xyz'], 'nil'));
-    $this->assertTrue(Codetags::instance()->isActive(['abc', 'xyz'], null));
-    $this->assertFalse(Codetags::instance()->isActive(['abc', 'nil']));
-    $this->assertFalse(Codetags::instance()->isActive(['abc', 'def', 'nil']));
-    $this->assertFalse(Codetags::instance()->isActive(['abc', 'def', 'disabled']));
-    $this->assertFalse(Codetags::instance()->isActive(['abc', '123'], ['def', '456']));
+    $this->assertTrue(TagManager::instance()->isActive(['abc', 'xyz'], 'nil'));
+    $this->assertTrue(TagManager::instance()->isActive(['abc', 'xyz'], null));
+    $this->assertFalse(TagManager::instance()->isActive(['abc', 'nil']));
+    $this->assertFalse(TagManager::instance()->isActive(['abc', 'def', 'nil']));
+    $this->assertFalse(TagManager::instance()->isActive(['abc', 'def', 'disabled']));
+    $this->assertFalse(TagManager::instance()->isActive(['abc', '123'], ['def', '456']));
     // pre-defined tags are overridden by values of environment variables
-    $this->assertTrue(Codetags::instance()->isActive('abc'));
-    $this->assertTrue(Codetags::instance()->isActive('tag-1'));
-    $this->assertTrue(Codetags::instance()->isActive('abc', 'tag-1'));
-    $this->assertTrue(Codetags::instance()->isActive('disabled', 'tag-1'));
-    $this->assertTrue(Codetags::instance()->isActive('tag-4'));
-    $this->assertFalse(Codetags::instance()->isActive('tag-2'));
-    $this->assertFalse(Codetags::instance()->isActive('tag-3'));
-    $this->assertFalse(Codetags::instance()->isActive(['nil', 'tag-1']));
-    $this->assertFalse(Codetags::instance()->isActive('nil', 'tag-3'));
-    $this->assertFalse(Codetags::instance()->isActive('tag-3', 'disabled'));
+    $this->assertTrue(TagManager::instance()->isActive('abc'));
+    $this->assertTrue(TagManager::instance()->isActive('tag-1'));
+    $this->assertTrue(TagManager::instance()->isActive('abc', 'tag-1'));
+    $this->assertTrue(TagManager::instance()->isActive('disabled', 'tag-1'));
+    $this->assertTrue(TagManager::instance()->isActive('tag-4'));
+    $this->assertFalse(TagManager::instance()->isActive('tag-2'));
+    $this->assertFalse(TagManager::instance()->isActive('tag-3'));
+    $this->assertFalse(TagManager::instance()->isActive(['nil', 'tag-1']));
+    $this->assertFalse(TagManager::instance()->isActive('nil', 'tag-3'));
+    $this->assertFalse(TagManager::instance()->isActive('tag-3', 'disabled'));
   }
 }
 

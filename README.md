@@ -1,4 +1,4 @@
-# tourane/codetags
+# Tourane/Codetags
 
 ## Installation
 
@@ -16,23 +16,56 @@ $ composer require tourane/codetags
 
 ### Default instance
 
-```php
-use Tourane\Codetags;
+Example source code `examples/default-instance.php`:
 
-$codetags = Codetags::instance();
+```php
+use Tourane\Codetags\TagManager;
+
+$default = TagManager::instance();
 
 // ...
 
-if ($codetags->isActive('new-version')) {
+if ($default->isActive('new-version')) {
   // do somethings
 }
 
-if ($codetags->isActive('mongodb', 'couchdb')) {
+if ($default->isActive('mongodb', 'couchdb')) {
   // at least one of 'mongodb' and 'couchdb' is available
 }
 
-if ($codetags->isActive(['foo', 'bar'])) {
+if ($default->isActive(['foo', 'bar'])) {
   // both 'foo' and 'bar' are available
+}
+```
+
+### Multiple instances
+
+Example source code `examples/multiple-instances.php`:
+
+```php
+use Tourane\Codetags\TagManager;
+
+$default = TagManager::instance();
+
+$oldFlow = TagManager::getInstance("oldflow");
+$newFlow = TagManager::getInstance("current", array(
+  "namespace" => "newflow"
+));
+
+if ($default->isActive("new-version")) {
+  echo sprintf("%s is activated\n", "new-version");
+}
+
+if ($default->isActive(["foo", "bar"])) {
+  echo sprintf("Both %s are activated\n", implode(",", ["foo", "bar"]));
+}
+
+if ($newFlow->isActive("couchdb", "mongodb")) {
+  echo sprintf("One of %s is activated\n", implode(",", ["couchdb", "mongodb"]));
+}
+
+if ($newFlow->isActive(["couchdb", "mongodb"])) {
+  echo sprintf("All of %s are activated\n", implode(",", ["couchdb", "mongodb"]));
 }
 ```
 

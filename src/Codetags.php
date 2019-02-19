@@ -5,7 +5,7 @@ const DEFAULT_NAMESPACE = "CODETAGS";
 /**
  * Singleton class that contains feature tags registering and validating methods.
  */
-class Codetags {
+class TagManager {
   private static $instances = array();
   private $store = array(
     "env" => array(),
@@ -28,10 +28,10 @@ class Codetags {
    *  @var string $version  the current package version.
    * }
    *
-   * @return Tourane\Codetags\Codetags The instance itself.
+   * @return Tourane\Codetags\TagManager The instance itself.
    */
   public function initialize($opts = array()) {
-    foreach (array("namespace", "includedTagsLabel", "excludedTagsLabel") as $fieldName) {
+    foreach (array("namespace", "INCLUDED_TAGS", "EXCLUDED_TAGS") as $fieldName) {
       if (array_key_exists($fieldName, $opts) && is_string($opts[$fieldName])) {
         $this->presets[$fieldName] = Nodash::labelify($opts[$fieldName]);
       }
@@ -122,7 +122,7 @@ class Codetags {
    * Clears the cached values of tags filtering result as well as the cached values 
    * of environment variables.
    * 
-   * @return Tourane\Codetags\Codetags The instance itself.
+   * @return Tourane\Codetags\TagManager The instance itself.
    */
   public function clearCache() {
     foreach(array_keys($this->store["cachedTags"]) as $tag) {
@@ -135,7 +135,7 @@ class Codetags {
    * invokes the method clearCache() and clears the values of declaredTags collection 
    * that has been defined by register() method.
    * 
-   * @return Tourane\Codetags\Codetags The instance itself.
+   * @return Tourane\Codetags\TagManager The instance itself.
    */
   public function reset() {
     $this->clearCache();
@@ -154,21 +154,26 @@ class Codetags {
   }
 
   private function getLabel($label) {
-    $prefix = "_";
+    $prefix = "";
     if (array_key_exists("namespace", $this->presets) && is_string($this->presets["namespace"])) {
-      $prefix = $this->presets["namespace"] . $prefix;
+      $prefix = $this->presets["namespace"];
     } else {
-      $prefix = DEFAULT_NAMESPACE . $prefix;
+      $prefix = DEFAULT_NAMESPACE;
     }
-    switch ($label) {
-      case "includedTags":
-        return $prefix . (array_key_exists("includedTagsLabel", $this->presets) ? $this->presets["includedTagsLabel"] : "INCLUDED_TAGS");
-        break;
-      case "excludedTags":
-        return $prefix . (array_key_exists("excludedTagsLabel", $this->presets) ? $this->presets["excludedTagsLabel"] : "EXCLUDED_TAGS");
-        break;
+    if ($label == "namespace") {
+      return $prefix;
+    } else {
+      $prefix = $prefix . "_";
+      switch ($label) {
+        case "includedTags":
+          return $prefix . (array_key_exists("INCLUDED_TAGS", $this->presets) ? $this->presets["INCLUDED_TAGS"] : "INCLUDED_TAGS");
+          break;
+        case "excludedTags":
+          return $prefix . (array_key_exists("EXCLUDED_TAGS", $this->presets) ? $this->presets["EXCLUDED_TAGS"] : "EXCLUDED_TAGS");
+          break;
+      }
+      return $prefix . (array_key_exists($label, $this->presets) ? $this->presets[$label] : Nodash::labelify($label));
     }
-    return $prefix . (array_key_exists($label, $this->presets) ? $this->presets[$label] : Nodash::labelify($label));
   }
 
   private function getEnv($label, $default_value = Null) {
@@ -276,7 +281,7 @@ class Codetags {
    * @param string $name A string that is identified the instance.
    * @param array $opts An associate array that is used to initialize the instance.
    * 
-   * @return Tourane\Codetags\Codetags The created instance.
+   * @return Tourane\Codetags\TagManager The created instance.
    */
   public static function newInstance($name, $opts = array()) {
     $name = Nodash::labelify($name);
@@ -286,7 +291,7 @@ class Codetags {
     if ($name === DEFAULT_NAMESPACE && array_key_exists($name, self::$instances)) {
       throw new \RuntimeException(sprintf("%s is default instance name. Please provides another name.", DEFAULT_NAMESPACE));
     }
-    return self::$instances[$name] = new Codetags($opts);
+    return self::$instances[$name] = new TagManager($opts);
   }
 
   /**
@@ -296,7 +301,7 @@ class Codetags {
    * @param string $name A string that is identified the instance.
    * @param array $opts An associate array that is used to initialize the instance.
    * 
-   * @return Tourane\Codetags\Codetags The retrieved instance.
+   * @return Tourane\Codetags\TagManager The retrieved instance.
    */
   public static function getInstance($name, $opts = array()) {
     $name = Nodash::labelify($name);
@@ -313,13 +318,13 @@ class Codetags {
   /**
    * Provides the default instance.
    * 
-   * @return Tourane\Codetags\Codetags The default instance.
+   * @return Tourane\Codetags\TagManager The default instance.
    */
   public static function instance() {
     return self::getInstance(DEFAULT_NAMESPACE);
   }
 }
 
-Codetags::instance();
+TagManager::instance();
 
 ?>
